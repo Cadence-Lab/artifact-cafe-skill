@@ -106,6 +106,7 @@ Options:
 --entry index.html              # entry file (default: auto-detect)
 --expires-in 1h                 # explicit temporary lifetime (30m, 1h, 7d)
 --artifact art_xxx              # publish a new version to an existing artifact
+--force                         # intentionally publish despite a newer version; no merge
 --workspace acme                # explicit team workspace
 --folder specs                  # folder in that workspace — SETS VISIBILITY, see below
 --review off                    # plain artifact: no review tools (see below)
@@ -148,6 +149,13 @@ artifact id and a secret publish token, and gitignores it.
 Decide the destination **before** the first publish — see "Choose where to
 publish" below. Always use `--json` and report its `destination` and
 `destinationSource` fields.
+
+If publish returns `409 version_conflict`, another session published after your
+base. The error includes `currentVersion`. Run `artifact-cafe pull`, merge the
+latest files with your local changes, then publish again. Never retry with
+`--force` automatically: that deliberately publishes your local files over the
+newer version without merging. The CLI remembers your base after publishing or
+linking. Older clients without a saved base keep existing behavior.
 
 ## Temporary artifacts
 
@@ -351,6 +359,30 @@ teammate's in a workspace you belong to — so later commands run bare: no token
 needed, account actions use your login. `link --json` lists the candidates
 first. This is how you build on work someone else published.
 
+## Download before editing
+
+If an artifact is not on disk, pull it before editing:
+
+```bash
+npx artifact-cafe@latest pull ./artifact --artifact art_x --json
+```
+
+Pull downloads every file of the current version to its original path, including
+unreferenced files such as `cafe.data`, and verifies SHA-256 hashes and sizes.
+Use `--version N` for a historical version. A non-empty destination requires
+`--force`, which overwrites matching files and preserves unrelated files.
+Authorize with workspace membership, an agent token in the artifact's workspace,
+or the artifact's publish token for anonymous/personal artifacts. Guest access
+does not suffice. Pull creates linkage without a new secret and sets
+`baseVersion`. Refreshing the same artifact preserves existing credentials and
+placement. A directory linked to another artifact is refused even with `--force`;
+use another directory. `link` only binds existing local files. JSON returns `artifactId`, `versionNumber`,
+`dir` and `files` (path, hash, size, mimeType).
+
+Publish source and supporting files alongside the static entry rather than only
+build output, so the next agent can pull and edit them. Pull cannot reconstruct
+source that was never published. The download command requires the npm CLI.
+
 ## Pull comments
 
 The read side of the loop — what reviewers said, so the agent can address it:
@@ -533,18 +565,37 @@ contains any of:
   deliberately harmful JavaScript, deceptive redirects.
 - **Hate or harassment** — content attacking or demeaning people based on
   identity, or targeting an individual for abuse.
-- **Sexual content** — pornographic material; anything sexualizing minors is an
-  absolute hard stop, never publish it.
+- **Sexual content** — pornography or sexually explicit material; anything
+  sexualizing minors is an absolute hard stop, never publish it.
+- **Sexual exploitation** — sexual services, non-consensual intimate imagery,
+  sexualized impersonation, or AI-generated sexual content.
 - **Violence** — graphic gore, threats, or incitement to violence.
 - **Spam / scams / fraud** — deceptive schemes, fake giveaways, misleading
   financial or medical claims.
+- **Gambling and financial operations** — bets or lotteries involving money or
+  items of value; money laundering; get-rich-quick schemes; collecting payments,
+  deposits, investments or financial-account credentials; operating lending,
+  investment, money-transfer or crypto-trading services.
+- **Regulated sales** — selling or brokering weapons, explosives, controlled
+  drugs, prescription medicines or other goods/services requiring regulatory
+  approval.
+- **Sensitive data** — real credentials, government ID documents, payment-card
+  data, health records, biometric data or other highly sensitive personal data.
+- **Safety-critical operations** — emergency response, medical diagnosis or
+  treatment decisions, control of physical systems, or operations whose failure
+  could cause death, injury or serious harm.
 - **Other illegal content.**
 
 Do not try to "clean up" violating content to publish it — decline the publish.
 When you refuse, say plainly that it violates artifact.cafe's content policy.
-Legitimate demos of security concepts (e.g. an annotated write-up) are fine; a
-working phishing page or live malware is not. Automated moderation at publish
-time is planned — treat this as a policy you enforce now, not a filter to evade.
+These rules apply to files, comments, data, embeds and links, including private
+or password-protected artifacts, even where the activity would otherwise be
+legal. Factual discussion and non-operational prototypes must follow the content
+rules and use synthetic examples instead of sensitive data. A working phishing
+page or live malware is prohibited; calling a live service a demo or linking to
+prohibited material elsewhere does not create an exception. Full policy:
+https://artifact.cafe/terms. Report violations to hi@cadencelab.org. Automated
+moderation at publish time is planned — do not imply every upload is screened.
 
 ## What to tell the user
 
