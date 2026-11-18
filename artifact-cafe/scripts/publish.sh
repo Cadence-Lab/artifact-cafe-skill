@@ -19,7 +19,6 @@ TITLE=""
 DESCRIPTION=""
 ENTRY=""
 ARTIFACT_ID_FLAG=""
-TOKEN_FLAG=""
 API_URL_FLAG=""
 CLIENT="${ARTIFACT_CAFE_AGENT:-}"
 JSON=0
@@ -34,14 +33,22 @@ Publishes a folder of static files as an artifact for review.
 Options:
   --title <text>       Artifact title
   --description <text> Share-card summary (overrides the entry HTML)
-  --entry <file>       Entry file (default: auto-detect index.html)
+  --entry <file>       Entry file (default: index.html, else the only .html file
+                       in the folder root, else artifact.cafe makes one)
   --artifact <id>      Publish a new version to an existing artifact id
   --client <name>      Agent name for attribution (e.g. claude-code, cursor)
-  --token <token>      Publish token (else read from config / $ARTIFACT_CAFE_TOKEN)
-  --api-url <url>      API base (default: https://artifact.cafe)
+  --api-url <url>      API base (default: $ARTIFACT_CAFE_URL, else the folder config,
+                       else https://artifact.cafe)
   --json               Machine-readable output
   --no-open            Don't open the review URL in a browser
   -h, --help           Show this help
+
+Credentials, in this order (the script takes no secret as a flag):
+  ARTIFACT_CAFE_API_KEY      Account key (ack_) or agent token (aat_). If it is
+                             not set: the key that `artifact-cafe login` stored.
+  .artifactcafe/config.json  Publish token of the artifact of this folder
+  ARTIFACT_CAFE_TOKEN        Publish token of one artifact
+With no credential, a new artifact is anonymous and expires after 24 hours.
 USAGE
   exit "${1:-1}"
 }
@@ -55,7 +62,7 @@ die() {
   exit 1
 }
 
-for cmd in curl jq file; do
+for cmd in curl jq; do
   command -v "$cmd" >/dev/null 2>&1 || die "requires $cmd (not found on PATH)"
 done
 
@@ -75,17 +82,19 @@ else
   size_of() { stat -c%s "$1"; }
 fi
 
+# A flag that takes a value must have one.
+need_value() { [[ $# -ge 2 && "$2" != --* ]] || die "$1 needs a value. Run publish.sh --help."; }
+
 # Parse args. First non-flag positional is the directory.
 DIR_SET=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --title)    TITLE="$2"; shift 2 ;;
-    --description) DESCRIPTION="$2"; shift 2 ;;
-    --entry)    ENTRY="$2"; shift 2 ;;
-    --artifact) ARTIFACT_ID_FLAG="$2"; shift 2 ;;
-    --client)   CLIENT="$2"; shift 2 ;;
-    --token)    TOKEN_FLAG="$2"; shift 2 ;;
-    --api-url)  API_URL_FLAG="$2"; shift 2 ;;
+    --title)    need_value "$@"; TITLE="$2"; shift 2 ;;
+    --description) need_value "$@"; DESCRIPTION="$2"; shift 2 ;;
+    --entry)    need_value "$@"; ENTRY="$2"; shift 2 ;;
+    --artifact) need_value "$@"; ARTIFACT_ID_FLAG="$2"; shift 2 ;;
+    --client)   need_value "$@"; CLIENT="$2"; shift 2 ;;
+    --api-url)  need_value "$@"; API_URL_FLAG="$2"; shift 2 ;;
     --json)     JSON=1; shift ;;
     --no-open)  OPEN=0; shift ;;
     -h|--help)  usage 0 ;;
@@ -106,10 +115,11 @@ mime_for() {
   case "$ext" in
     html|htm)  echo "text/html" ;;
     css)       echo "text/css" ;;
+    csv)       echo "text/csv" ;;
     js|mjs)    echo "text/javascript" ;;
     json|map)  echo "application/json" ;;
     txt)       echo "text/plain" ;;
-    md)        echo "text/markdown" ;;
+    md|markdown) echo "text/markdown" ;;
     xml)       echo "application/xml" ;;
     svg)       echo "image/svg+xml" ;;
     png)       echo "image/png" ;;
@@ -191,14 +201,12 @@ if [[ -n "$ENTRY" ]]; then
 elif have_path "index.html"; then
   ENTRY="index.html"
 else
-  # Exactly one top-level .html file is an unambiguous entry.
-  root_html="$(jq -r '[.[] | select(.path | test("^[^/]+\\.html$"))] | map(.path) | @tsv' <<<"$FILES_JSON")"
+  # As in the CLI: one HTML file at the root is the entry. With none, the server makes the entry.
+  root_html="$(jq -r '[.[] | select(.mimeType == "text/html" and (.path | contains("/") | not))] | map(.path) | @tsv' <<<"$FILES_JSON")"
   n=0; [[ -n "$root_html" ]] && n="$(awk -F'\t' '{print NF}' <<<"$root_html")"
   if [[ "$n" -eq 1 ]]; then
     ENTRY="$root_html"
-  elif [[ "$n" -eq 0 ]]; then
-    die "No entry file found. Add an index.html or pass --entry <file>."
-  else
+  elif [[ "$n" -gt 1 ]]; then
     die "Multiple HTML files found ($root_html). Pass --entry <file>."
   fi
 fi
@@ -206,6 +214,10 @@ fi
 # ── Config & auth ──────────────────────────────────────────────────────────
 CONFIG_DIR="$DIR/.artifactcafe"
 CONFIG_FILE="$CONFIG_DIR/config.json"
+# A symbolic link would send the config writes to another folder.
+for f in "$CONFIG_DIR" "$CONFIG_FILE" "$CONFIG_DIR/.gitignore"; do
+  if [[ -L "$f" ]]; then die "refusing to write through a symbolic link: $f"; fi
+done
 cfg() { [[ -f "$CONFIG_FILE" ]] && jq -r --arg k "$1" '.[$k] // empty' "$CONFIG_FILE" 2>/dev/null || true; }
 CFG_ARTIFACT_ID="$(cfg artifactId)"
 CFG_TOKEN="$(cfg publishToken)"
@@ -232,18 +244,30 @@ if [[ -z "$ARTIFACT_ID" && -n "$PROJECT_CONFIG" ]]; then
   die "Project workspace defaults require the npm CLI: npx artifact-cafe@latest publish \"$DIR\" --json"
 fi
 
-# The stored token only authorizes its own artifact.
-TOKEN=""
-if [[ -n "$TOKEN_FLAG" ]]; then
-  TOKEN="$TOKEN_FLAG"
-elif [[ -n "$ARTIFACT_ID" && "$ARTIFACT_ID" == "$CFG_ARTIFACT_ID" && -n "$CFG_TOKEN" ]]; then
-  TOKEN="$CFG_TOKEN"
-elif [[ -n "${ARTIFACT_CAFE_TOKEN:-}" ]]; then
-  TOKEN="$ARTIFACT_CAFE_TOKEN"
+# Credential order, as in the npm CLI: the account key, then the folder token,
+# then ARTIFACT_CAFE_TOKEN. The folder token is good only for its own artifact.
+origin="$(sed -E 's#^([^:/]+://[^/]+).*#\1#' <<<"$API_URL")"
+KEY="${ARTIFACT_CAFE_API_KEY:-}"
+KEY_SOURCE="ARTIFACT_CAFE_API_KEY"
+CREDENTIALS="$HOME/.artifactcafe/credentials"
+if [[ -z "$KEY" && -f "$CREDENTIALS" ]]; then
+  KEY="$(jq -r --arg o "$origin" '.keys[$o] // empty' "$CREDENTIALS" 2>/dev/null || true)"
+  KEY_SOURCE="the stored login in ~/.artifactcafe/credentials"
 fi
-
-auth_args=()
-[[ -n "$TOKEN" ]] && auth_args=(-H "authorization: Bearer $TOKEN")
+FOLDER_SOURCE="the publish token in .artifactcafe/config.json"
+FOLDER_TOKEN=""
+if [[ -n "$ARTIFACT_ID" && "$ARTIFACT_ID" == "$CFG_ARTIFACT_ID" ]]; then
+  FOLDER_TOKEN="$CFG_TOKEN"
+fi
+TOKEN="${KEY:-${FOLDER_TOKEN:-${ARTIFACT_CAFE_TOKEN:-}}}"
+# The source of TOKEN, never its value, names the credential in an error.
+if [[ -n "$KEY" ]]; then
+  SOURCE="$KEY_SOURCE"
+elif [[ -n "$FOLDER_TOKEN" ]]; then
+  SOURCE="$FOLDER_SOURCE"
+else
+  SOURCE="ARTIFACT_CAFE_TOKEN"
+fi
 
 # ── Create publish session ─────────────────────────────────────────────────
 aid_json="null"; [[ -n "$ARTIFACT_ID" ]] && aid_json="$(jq -n --arg a "$ARTIFACT_ID" '$a')"
@@ -258,34 +282,52 @@ body="$(
     --arg runid "${ARTIFACT_CAFE_RUN_ID:-}" \
     '{
       artifactId: $aid,
-      entryPath: $entry,
       files: $files,
       source: ({type:"cli"}
         + (if $agent == "" then {} else {agent:$agent} end)
         + (if $runid == "" then {} else {runId:$runid} end))
     }
+    + (if $entry == "" then {} else {entryPath:$entry} end)
     + (if $title == "" then {} else {title:$title} end)
     + (if $description == "" then {} else {description:$description} end)'
 )"
 
-api_post() { # path body → prints body, dies on non-2xx with structured error
-  local path="$1" data="$2" resp status
-  resp="$(curl -sS -X POST ${auth_args[@]+"${auth_args[@]}"} -H "content-type: application/json" \
-    --data "$data" -w $'\n%{http_code}' "$API_URL$path")" \
+# POST path body: sets STATUS and OUT. curl reads the credential header from
+# stdin, so the credential is not in the process list.
+post() {
+  local resp
+  resp="$(curl -sS -X POST ${TOKEN:+-H @-} -H "content-type: application/json" \
+    --data "$2" -w $'\n%{http_code}' "$API_URL$1" <<<"${TOKEN:+authorization: Bearer $TOKEN}")" \
     || die "could not reach $API_URL — is the API up?"
-  status="${resp##*$'\n'}"
-  local out="${resp%$'\n'*}"
-  if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
+  STATUS="${resp##*$'\n'}"
+  OUT="${resp%$'\n'*}"
+}
+
+ok_or_die() { # dies on non-2xx with structured error
+  if [[ "$STATUS" -lt 200 || "$STATUS" -ge 300 ]]; then
     local code msg
-    code="$(jq -r '.code // "http_'"$status"'"' <<<"$out" 2>/dev/null || echo "http_$status")"
-    msg="$(jq -r '.message // empty' <<<"$out" 2>/dev/null || true)"
+    code="$(jq -r '.code // "http_'"$STATUS"'"' <<<"$OUT" 2>/dev/null || echo "http_$STATUS")"
+    msg="$(jq -r '.message // empty' <<<"$OUT" 2>/dev/null || true)"
+    if [[ ("$STATUS" == 401 || "$STATUS" == 403) && -n "$TOKEN" ]]; then
+      die "$origin refused the credential from $SOURCE: ${msg:-unauthorized} [$code] Run \`npx artifact-cafe@latest login\` on a machine with Node, or set ARTIFACT_CAFE_API_KEY to a valid key."
+    fi
     die "${msg:-request failed} [$code]"
   fi
-  printf '%s' "$out"
 }
 
 log "  publishing $file_count file(s) from $DIR"
-session="$(api_post "/api/v1/publish" "$body")"
+post "/api/v1/publish" "$body"
+# An account key is good only for artifacts of its account. If the API refuses
+# the key, use the publish token one time, as the CLI does: the artifact can be anonymous.
+RETRY_TOKEN="${FOLDER_TOKEN:-${ARTIFACT_CAFE_TOKEN:-}}"
+if [[ ("$STATUS" == 401 || "$STATUS" == 403) && -n "$KEY" && "$KEY" != aat_* \
+  && -n "$RETRY_TOKEN" && "$RETRY_TOKEN" != "$KEY" ]]; then
+  TOKEN="$RETRY_TOKEN"
+  if [[ -n "$FOLDER_TOKEN" ]]; then SOURCE="$FOLDER_SOURCE"; else SOURCE="ARTIFACT_CAFE_TOKEN"; fi
+  post "/api/v1/publish" "$body"
+fi
+ok_or_die
+session="$OUT"
 SESSION_ID="$(jq -r '.publishSessionId' <<<"$session")"
 UP_COUNT="$(jq -r '.filesToUpload | length' <<<"$session")"
 SKIP_UNCHANGED="$(jq -r '.skippedFiles | length' <<<"$session")"
@@ -301,20 +343,26 @@ while IFS=$'\t' read -r up_path up_url; do
   [[ -n "$up_path" ]] || continue
   abs="$DIR/$up_path"
   mime="$(mime_for "$up_path")"
+  # The query of a presigned URL holds its signature, so the error names only the host.
+  up_host="${up_url#*://}"; up_host="${up_host%%[/?]*}"
   curl -fsS --max-time "$UPLOAD_TIMEOUT" -X PUT \
     -H "content-type: $mime" -H "Expect:" \
     --data-binary @"$abs" "$up_url" >/dev/null \
-    || die "upload failed for $up_path"
+    || die "upload to the storage host $up_host failed for $up_path"
 done < <(jq -r '.filesToUpload[] | [.path, .uploadUrl] | @tsv' <<<"$session")
 
 # ── Finalize ───────────────────────────────────────────────────────────────
-result="$(api_post "/api/v1/publish/$SESSION_ID/finalize" "")"
+post "/api/v1/publish/$SESSION_ID/finalize" ""
+ok_or_die
+result="$OUT"
 URL="$(jq -r '.url' <<<"$result")"
 VERSION="$(jq -r '.versionNumber' <<<"$result")"
 NEW_TOKEN="$(jq -r '.publishToken // empty' <<<"$result")"
 CLAIM_URL="$(jq -r '.claimUrl // empty' <<<"$result")"
 RESULT_ARTIFACT_ID="$(jq -r '.artifactId' <<<"$result")"
 VISIBILITY="$(jq -r '.visibility // empty' <<<"$result")"
+EXPIRES_AT="$(jq -r '.expiresAt // empty' <<<"$result")"
+AUTO_DELETE_AT="$(jq -r '.autoDeleteAt // empty' <<<"$result")"
 
 # Who can open the review URL. Only `workspace`/`private` need saying —
 # on public/unlisted "anyone with the link" is the point of the link.
@@ -331,27 +379,33 @@ if [[ -n "$ARTIFACT_ID" ]]; then
   DESTINATION="existing-artifact"
   DESTINATION_SOURCE="artifact-config"
   DESTINATION_LABEL="Existing artifact"
+elif [[ "$TOKEN" == aat_* ]]; then
+  DESTINATION="workspace"
+  DESTINATION_SOURCE="agent-token"
+  DESTINATION_LABEL="Agent token's workspace"
 elif [[ "$TOKEN" == ack_* ]]; then
   DESTINATION="personal"
   DESTINATION_SOURCE="personal-default"
   DESTINATION_LABEL="Personal"
 fi
 
-# ── Persist config on first publish (never print the token) ────────────────
-if [[ -n "$NEW_TOKEN" ]]; then
+# ── Persist config for a new artifact (never print the token) ──────────────
+# An agent token gets no publish token, but the next run must publish a new
+# version of the same artifact.
+if [[ -n "$NEW_TOKEN" || -z "$ARTIFACT_ID" ]]; then
   slug="${URL##*/a/}"
   mkdir -p "$CONFIG_DIR"
   ( umask 177
     jq -n --arg id "$RESULT_ARTIFACT_ID" --arg slug "$slug" --arg url "$URL" \
       --arg api "$API_URL" --arg tok "$NEW_TOKEN" \
-      '{artifactId:$id, slug:$slug, url:$url, apiUrl:$api, publishToken:$tok}' \
+      '{artifactId:$id, slug:$slug, url:$url, apiUrl:$api}
+        + (if $tok == "" then {} else {publishToken:$tok} end)' \
       >"$CONFIG_FILE" )
   chmod 600 "$CONFIG_FILE" 2>/dev/null || true
-  # Add .artifactcafe/ to .gitignore if a .gitignore already exists.
-  gi="$DIR/.gitignore"
-  if [[ -f "$gi" ]] && ! grep -qE '^/?\.artifactcafe/?$' "$gi"; then
-    printf '\n# artifact.cafe publish token\n.artifactcafe/\n' >>"$gi"
-  fi
+fi
+# Git then ignores the token, with no change to the .gitignore of the folder.
+if [[ -f "$CONFIG_FILE" && ! -f "$CONFIG_DIR/.gitignore" ]]; then
+  printf '*\n' >"$CONFIG_DIR/.gitignore"
 fi
 
 # ── Output ─────────────────────────────────────────────────────────────────
@@ -360,11 +414,13 @@ if [[ "$JSON" -eq 1 ]]; then
     --arg id "$RESULT_ARTIFACT_ID" --argjson v "$VERSION" --arg url "$URL" \
     --arg destination "$DESTINATION" --arg source "$DESTINATION_SOURCE" \
     --arg claim "$CLAIM_URL" --argjson session "$session" --argjson ignored "$IGNORED_JSON" \
-    --arg visibility "$VISIBILITY" \
+    --arg visibility "$VISIBILITY" --arg expires "$EXPIRES_AT" --arg autodelete "$AUTO_DELETE_AT" \
     '{
       artifactId:$id, versionNumber:$v, url:$url,
       destination:$destination, destinationSource:$source,
       visibility: (if $visibility == "" then null else $visibility end),
+      expiresAt: (if $expires == "" then null else $expires end),
+      autoDeleteAt: (if $autodelete == "" then null else $autodelete end),
       filesUploaded: ($session.filesToUpload | map(.path)),
       skippedFiles: $session.skippedFiles,
       ignored: $ignored
@@ -397,6 +453,11 @@ else
     echo ""
     echo "$ACCESS_NOTE"
   fi
+  echo ""
+fi
+if [[ "$JSON" -eq 0 && -n "$EXPIRES_AT" ]]; then
+  kind="Anonymous artifact"; [[ -n "$AUTO_DELETE_AT" ]] && kind="Temporary artifact"
+  echo "$kind — expires at $EXPIRES_AT. All versions, comments, files, and artifact data will be automatically deleted."
   echo ""
 fi
 

@@ -1,0 +1,32 @@
+/* Look: editorial. Headings and reading text use Newsreader. Labels and tables use Public Sans. Ink text on warm paper, with black rules in place of boxes.
+   Fits: reports, memos, documents, letters, research notes, text that people read at length.
+   Not for: dashboards, tools, forms, pages that sell.
+   Accent: take the hue from the subject. Light: L 0.40 to 0.46, C 0.04 to 0.14. Dark: L 0.78 to 0.86, C 0.10 or less.
+   Font link: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400..500&family=Public+Sans:wght@400..500&display=swap" /> */
+:root {
+  --font: "Newsreader", Georgia, serif;
+  --font-heading: "Newsreader", Georgia, serif;
+  --font-ui: "Public Sans", system-ui, sans-serif;
+  --heading-weight: 400;
+  --tracking: -0.012em;
+  --size-text: 1.1875rem;
+  --size-h1: clamp(2.375rem, 1.6rem + 3vw, 3.75rem);
+  --size-h2: clamp(1.625rem, 1.35rem + 1.1vw, 2.125rem);
+  --size-h3: 1.375rem;
+  --size-lead: clamp(1.3125rem, 1.1rem + 0.9vw, 1.625rem);
+  --leading: 1.5;
+  --radius: 0.125rem;
+  --card-pad: 0.875rem 0 0;
+  --card-border: 0;
+  --card-shadow: inset 0 1px 0 var(--text);
+  --header-rule: 1px solid var(--text);
+  --header-title: 400 1.25rem/1.4 var(--font-heading);
+  --table-rule: 1px solid var(--text);
+  --bg: light-dark(oklch(0.975 0.011 85), oklch(0.2 0.008 70));
+  --surface: light-dark(oklch(0.948 0.015 82), oklch(0.245 0.009 70));
+  --line: light-dark(oklch(0.87 0.016 80), oklch(0.34 0.01 70));
+  --edge: light-dark(oklch(0.6 0.02 75), oklch(0.58 0.012 70));
+  --text: light-dark(oklch(0.21 0.014 60), oklch(0.93 0.01 80));
+  --muted: light-dark(oklch(0.47 0.018 65), oklch(0.76 0.012 75));
+  --accent: light-dark(oklch(0.45 0.12 30), oklch(0.8 0.08 30));
+}

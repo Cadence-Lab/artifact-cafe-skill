@@ -1,0 +1,8 @@
+/* Look: plain. Geist on a neutral white ground, with hairline cards. This look is the template default, so it keeps the template font link.
+   Fits: product and app mockups, internal tools, notes, a page with no clear tone.
+   Not for: a subject with a strong mood, such as an invitation, an exhibition or a long essay.
+   Accent: take the hue from the subject. Light: L 0.40 to 0.46, C 0.16 or less. Dark: L 0.76 to 0.86, C 0.12 or less.
+   Font link: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..500&family=Geist+Mono:wght@400..500&display=swap" /> */
+:root {
+  --accent: light-dark(oklch(0.46 0.16 258), oklch(0.79 0.1 258));
+}

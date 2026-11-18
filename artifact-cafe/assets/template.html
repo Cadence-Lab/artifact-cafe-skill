@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Artifact title</title>
+    <!-- Fonts. A look replaces this link. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..500&family=Geist+Mono:wght@400..500&display=swap" />
+    <style>
+      /* artifact.cafe base 4. Do not edit. It styles plain elements. Tailwind classes always win over it. */
+      @layer properties, theme, base, cafe, components, utilities;
+      @layer cafe {
+        :root {
+          color-scheme: light; /* <html class="dark"> gives the dark design. */
+          /* Colors are oklch(L C H): L is the lightness, 0 to 1. Each token has a light and a dark value. */
+          --bg: light-dark(oklch(0.995 0.002 95), oklch(0.185 0.004 95));
+          --surface: light-dark(oklch(0.968 0.004 95), oklch(0.228 0.005 95));
+          --card: var(--bg);
+          --text: light-dark(oklch(0.22 0.008 95), oklch(0.94 0.004 95));
+          --muted: light-dark(oklch(0.5 0.01 95), oklch(0.77 0.008 95));
+          --line: light-dark(oklch(0.912 0.005 95), oklch(0.32 0.006 95));
+          --edge: light-dark(oklch(0.62 0.008 95), oklch(0.58 0.008 95));
+          --accent: light-dark(oklch(0.46 0.16 258), oklch(0.79 0.1 258));
+          --on-accent: light-dark(oklch(0.995 0 0), oklch(0.18 0.005 95));
+          --accent-soft: color-mix(in oklab, var(--accent) 11%, var(--bg));
+          --field: var(--accent);
+          --on-field: var(--on-accent);
+          --ok: light-dark(oklch(0.46 0.12 150), oklch(0.79 0.14 150));
+          --warn: light-dark(oklch(0.48 0.1 62), oklch(0.81 0.12 75));
+          --bad: light-dark(oklch(0.48 0.17 27), oklch(0.78 0.12 25));
+          --series-1: light-dark(oklch(0.49 0.17 258), oklch(0.66 0.15 258)); /* Chart series of equal weight. */
+          --series-2: light-dark(oklch(0.6 0.17 45), oklch(0.68 0.15 45));
+          --series-3: light-dark(oklch(0.56 0.12 165), oklch(0.66 0.12 165));
+          --series-4: light-dark(oklch(0.52 0.15 340), oklch(0.66 0.15 340));
+          /* Type. --font is reading text, --font-heading is headings and .display, --font-ui is labels, controls and tables. */
+          --font: "Geist", system-ui, sans-serif;
+          --font-heading: var(--font);
+          --font-ui: var(--font);
+          --font-figures: var(--font-ui); /* Numbers in a table: td.text-end */
+          --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+          --heading-weight: 500;
+          --heading-variation: normal; /* Variable-font axes of headings, .display and .stat, such as "wdth" 75 */
+          --tracking: -0.022em; /* h1 and .display. h2 gets half. */
+          --size-display: clamp(2.75rem, 1.5rem + 5vw, 4.75rem);
+          --size-h1: clamp(2rem, 1.55rem + 1.9vw, 2.875rem);
+          --size-h2: clamp(1.375rem, 1.2rem + 0.75vw, 1.75rem);
+          --size-h3: 1.1875rem;
+          --size-lead: clamp(1.125rem, 1rem + 0.5vw, 1.3125rem);
+          --size-text: 1rem;
+          --leading: 1.55;
+          /* Surfaces and frame */
+          --radius: 0.5rem;
+          --card-pad: 1.25rem;
+          --card-border: 1px solid var(--line);
+          --card-shadow: none;
+          --header-rule: 1px solid var(--line); /* Line below the page header */
+          --header-title: 500 1rem/1.5 var(--font-ui); /* Font of the artifact title in the header */
+          --table-rule: 1px solid var(--edge); /* Line below the table head */
+          --width: 68rem;
+          --measure: 66ch;
+          /* Motion */
+          --ease: cubic-bezier(0.32, 0.72, 0, 1);
+          --duration: 150ms;
+          accent-color: var(--accent);
+        }
+        /* In dark mode the default field is the accent hue at L 0.4, so a field stays deep. A field that a look or an artifact sets in :root wins. */
+        .dark { color-scheme: dark; --field: oklch(from var(--accent) 0.4 c h); --on-field: oklch(0.97 0.005 95); }
+        *, ::before, ::after { box-sizing: border-box; }
+        html { color: var(--text); background: var(--bg); font: 100%/var(--leading) var(--font); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-synthesis-weight: none; overflow-wrap: break-word; }
+        body { margin: 0; font-size: var(--size-text); }
+        [hidden]:not([hidden="until-found"]) { display: none !important; }
+        ::selection { color: var(--text); background: color-mix(in oklab, var(--accent) 24%, var(--bg)); }
+
+        /* Page frame */
+        body > :is(header, main, footer) { width: min(100% - 2rem, var(--width)); margin-inline: auto; }
+        body > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 1.5rem; min-height: 3.25rem; padding-block: 0.25rem; font-family: var(--font-ui); border-bottom: var(--header-rule); }
+        body > header > :first-child { font: var(--header-title); }
+        nav { display: flex; flex-wrap: wrap; gap: 0 1.25rem; font-family: var(--font-ui); font-size: 1rem; }
+        nav a { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--muted); text-decoration: none; }
+        nav a[aria-current] { color: var(--text); text-decoration: underline 2px; text-underline-offset: 0.4em; }
+        main { padding-block: 2.5rem 4rem; }
+        body[data-deck] > main { padding-block: 1.5rem; }
+        /* A slide: <section data-screen><div>claim and evidence</div><footer>Back, Next, notes</footer></section>. The footer is at the same height on each slide, and open notes do not move it. */
+        body[data-deck] [data-screen]:has(> footer:last-child) { display: grid; grid-template-rows: minmax(30rem, auto) auto; }
+        body[data-deck] [data-screen] > :first-child { align-self: center; }
+        body[data-deck] [data-screen] > footer:last-child { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; padding-top: 1.5rem; }
+        body[data-deck] [data-screen] > footer > details[open] { flex-basis: 100%; }
+        body > footer { padding-block: 1.5rem; font-family: var(--font-ui); font-size: 0.875rem; color: var(--muted); border-top: 1px solid var(--line); }
+
+        /* Text */
+        h1, h2, h3, h4, .display { margin: 0 0 0.5em; font-family: var(--font-heading); font-weight: var(--heading-weight); font-variation-settings: var(--heading-variation); line-height: 1.25; text-wrap: balance; }
+        h1 { font-size: var(--size-h1); line-height: 1.08; letter-spacing: var(--tracking); }
+        h2 { font-size: var(--size-h2); line-height: 1.18; letter-spacing: calc(var(--tracking) / 2); }
+        h3 { font-size: var(--size-h3); line-height: 1.3; }
+        h4 { font-size: 1rem; line-height: 1.4; }
+        p, ul, ol, dl, pre, table, figure, blockquote, form, fieldset, details, article { margin: 0 0 1rem; }
+        * + :is(h2, h3, h4) { margin-top: 2em; }
+        :is(h1, h2, h3, h4, p, ul, ol, dl, pre, table, figure, blockquote, form, fieldset, details, article):last-child { margin-bottom: 0; }
+        :is(.flex, .grid, .inline-flex, .inline-grid, [class*=":flex"], [class*=":grid"]) > * { margin: 0; }
+        :is(.grid, .inline-grid, [class*=":grid"]) > * { min-width: 0; }
+        p, li, blockquote, dd { max-width: var(--measure); text-wrap: pretty; }
+        .lead { font-size: var(--size-lead); line-height: 1.45; }
+        a { color: var(--accent); text-decoration-line: underline; text-decoration-thickness: max(1px, 0.07em); text-decoration-color: color-mix(in oklab, currentColor 45%, transparent); text-underline-offset: 0.18em; transition: text-decoration-color var(--duration) var(--ease); }
+        ul, ol { padding-inline-start: 1.5rem; }
+        ul { list-style: disc; }
+        ol { list-style: decimal; }
+        li::marker { color: var(--muted); }
+        b, strong, th { font-weight: 500; }
+        dd { margin-inline-start: 0; }
+        small, figcaption, caption { font-family: var(--font-ui); font-size: 0.875rem; color: var(--muted); }
+        figcaption { margin-top: 0.5rem; }
+        hr { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--line); }
+        code, kbd, samp, pre { font: 0.875em/1.5 var(--mono); }
+        pre { padding: 1rem; overflow-x: auto; background: var(--surface); border-radius: var(--radius); }
+        :not(pre) > code, kbd { padding: 0.1em 0.35em; background: var(--surface); border: 1px solid var(--line); border-radius: 0.3em; }
+        blockquote { padding-inline-start: 1rem; color: var(--muted); border-inline-start: 3px solid var(--line); }
+        img, svg, video, canvas, iframe { display: block; max-width: 100%; }
+        iframe { border: 0; }
+        img, video { height: auto; }
+        img:not([src$=".svg"]), video { outline: 1px solid light-dark(oklch(0 0 0 / 0.1), oklch(1 0 0 / 0.1)); outline-offset: -1px; }
+        time, data, output { font-variant-numeric: tabular-nums; }
+
+        /* Data and layout */
+        table { width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: 1rem; font-variant-numeric: tabular-nums; }
+        th, td { padding: 0.625rem 0.75rem; text-align: start; vertical-align: top; border-bottom: 1px solid var(--line); }
+        :is(th, td):first-child { padding-inline-start: 0; }
+        :is(th, td):last-child { padding-inline-end: 0; }
+        tfoot :is(th, td) { border-bottom: 0; }
+        tfoot td { font-weight: 500; }
+        thead th { font-size: 0.875rem; color: var(--muted); vertical-align: bottom; border-bottom: var(--table-rule); }
+        td.text-end { font-family: var(--font-figures); }
+        caption { padding-bottom: 0.5rem; text-align: start; }
+        figure { overflow-x: auto; }
+        article { padding: var(--card-pad); background: var(--card); border: var(--card-border); border-radius: var(--radius); box-shadow: var(--card-shadow); }
+        .stat { margin: 0 0 0.25rem; font-family: var(--font-heading); font-size: 2.25rem; font-weight: var(--heading-weight); font-variation-settings: var(--heading-variation); line-height: 1.05; letter-spacing: calc(var(--tracking) / 2); font-variant-numeric: tabular-nums; }
+        .display { font-size: var(--size-display); line-height: 1; letter-spacing: calc(var(--tracking) * 1.3); }
+        .badge { display: inline-flex; align-items: center; padding: 0.1rem 0.6rem; font-family: var(--font-ui); font-size: 0.8125rem; font-weight: 500; line-height: 1.4; white-space: nowrap; border: 1px solid; border-radius: 99rem; }
+
+        /* Controls */
+        button, input, select, textarea { font: inherit; font-family: var(--font-ui); font-size: 1rem; color: inherit; }
+        button, .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.5rem 1.125rem; font-family: var(--font-ui); font-weight: 500; color: var(--text); text-decoration: none; white-space: nowrap; background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius); cursor: pointer; touch-action: manipulation; transition-property: background-color, border-color, color, filter, scale; transition-duration: var(--duration); transition-timing-function: var(--ease); }
+        :is(button, .button).primary { color: var(--on-accent); background: var(--accent); border-color: transparent; }
+        :is(button, .button):active:not(:disabled) { scale: 0.97; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        @media (hover: hover) {
+          nav a:hover { color: var(--text); }
+          a:hover { text-decoration-color: currentColor; }
+          :is(button, .button):hover { background: var(--surface); }
+          :is(button, .button).primary:hover { background: var(--accent); filter: brightness(0.92); }
+        }
+        form { max-width: 36rem; }
+        label { display: block; margin-bottom: 0.25rem; font-family: var(--font-ui); font-size: 1rem; font-weight: 500; }
+        label:has(> input:is([type="checkbox"], [type="radio"])) { display: flex; align-items: center; gap: 0.625rem; min-height: 2.75rem; margin-bottom: 0; font-weight: 400; cursor: pointer; }
+        input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"]), select, textarea { width: 100%; min-height: 2.75rem; padding: 0.5rem 0.75rem; background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius); caret-color: var(--accent); }
+        textarea { min-height: 6rem; resize: vertical; field-sizing: content; }
+        input:is([type="checkbox"], [type="radio"]) { flex: none; width: 1.125rem; height: 1.125rem; margin: 0; }
+        input[type="range"] { width: 100%; min-height: 2.75rem; margin: 0; }
+        :is(input, select, textarea)[aria-invalid="true"], :is(input, select, textarea):user-invalid { border-color: var(--bad); }
+        :is(input, select, textarea, small) + :is(label, fieldset, button, div) { margin-top: 1rem; }
+        ::placeholder { color: var(--muted); opacity: 1; }
+        fieldset { padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); }
+        legend { padding-inline: 0.25rem; font-family: var(--font-ui); font-weight: 500; }
+        progress { display: block; width: 100%; height: 0.5rem; overflow: hidden; appearance: none; background: var(--line); border: 0; border-radius: 99rem; }
+        ::-webkit-progress-bar { background: var(--line); }
+        ::-webkit-progress-value { background: var(--accent); }
+        ::-moz-progress-bar { background: var(--accent); }
+        details { padding-block: 0.75rem; border-block: 1px solid var(--line); }
+        summary { margin-block: -0.75rem; padding-block: 0.75rem; font-family: var(--font-ui); font-weight: 500; cursor: pointer; }
+        details[open] > summary { margin-bottom: 0; }
+        dialog { width: min(100% - 2rem, 32rem); margin: auto; padding: 1.5rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--radius) * 1.5); opacity: 0; scale: 0.97; transition: opacity var(--duration) var(--ease), scale var(--duration) var(--ease), overlay var(--duration) allow-discrete, display var(--duration) allow-discrete; }
+        dialog::backdrop { background: oklch(0 0 0 / 0.45); opacity: 0; transition: opacity var(--duration) var(--ease), overlay var(--duration) allow-discrete, display var(--duration) allow-discrete; }
+        dialog[open] { opacity: 1; scale: 1; transition-duration: 200ms; }
+        dialog[open]::backdrop { opacity: 1; transition-duration: 200ms; }
+        @starting-style {
+          dialog[open] { opacity: 0; scale: 0.97; }
+          dialog[open]::backdrop { opacity: 0; }
+        }
+
+        /* Accessibility and print */
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        :is(h1, h2)[tabindex="-1"]:focus-visible { outline: none; } /* The script moves the focus to the heading of the new screen. */
+        .skip { position: absolute; top: 0.5rem; left: 0.5rem; z-index: 10; padding: 0.5rem 1rem; color: var(--on-accent); background: var(--accent); border-radius: var(--radius); transform: translateY(-200%); }
+        .skip:focus { transform: none; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+        @media (prefers-reduced-motion: reduce) {
+          *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+        }
+        @media print {
+          .skip, body > header nav { display: none; }
+          [data-screen][hidden] { display: block !important; }
+          article, figure, pre, tr { break-inside: avoid; }
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.5/dist/index.global.js" integrity="sha384-t+qLIxS5zM/KF99/doWY+dxTsavdvgayaZt8A9ntLsUjEkiXzYl5M3Ij8zVFPL9j" crossorigin="anonymous"></script>
+    <style type="text/tailwindcss">
+      /* Tailwind 4. Style with Tailwind classes only. The tokens are colors: bg-surface, text-muted, border-line, bg-accent, bg-field. */
+      @theme inline {
+        --font-sans: var(--font);
+        --font-heading: var(--font-heading);
+        --font-ui: var(--font-ui);
+        --font-mono: var(--mono);
+        --color-bg: var(--bg);
+        --color-surface: var(--surface);
+        --color-card: var(--card);
+        --color-text: var(--text);
+        --color-muted: var(--muted);
+        --color-line: var(--line);
+        --color-edge: var(--edge);
+        --color-accent: var(--accent);
+        --color-on-accent: var(--on-accent);
+        --color-accent-soft: var(--accent-soft);
+        --color-field: var(--field);
+        --color-on-field: var(--on-field);
+        --color-ok: var(--ok);
+        --color-warn: var(--warn);
+        --color-bad: var(--bad);
+        --color-series-1: var(--series-1);
+        --color-series-2: var(--series-2);
+        --color-series-3: var(--series-3);
+        --color-series-4: var(--series-4);
+        --default-transition-duration: var(--duration);
+        --default-transition-timing-function: var(--ease);
+      }
+      @custom-variant dark (&:where(.dark, .dark *));
+
+      /* A look sets token values in :root only. Set --accent for this artifact in :root here. @font-face also goes here. Use classes for all other styling. */
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header>
+      <span>Artifact title</span>
+      <nav aria-label="Screens">
+        <a href="#/overview">Overview</a>
+        <a href="#/details">Details</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section id="overview" data-screen>
+        <h1>Overview</h1>
+        <p>Replace this text.</p>
+      </section>
+      <section id="details" data-screen>
+        <h1>Details</h1>
+        <p>Replace this text.</p>
+      </section>
+    </main>
+    <script>
+      // Screens. The URL hash names the screen in view, so a link can open a screen.
+      const screens = [...document.querySelectorAll("[data-screen]")];
+      const title = document.title;
+      let current;
+      function show() {
+        const target = document.getElementById(location.hash.replace(/^#\/?/, ""));
+        const hit = target?.closest("[data-screen]");
+        const screen = hit ?? current ?? screens[0];
+        if (!screen) return;
+        if (!hit) location.replace("#/" + screen.id);
+        if (screen === current) return;
+        const moved = current !== undefined;
+        current = screen;
+        for (const s of screens) s.hidden = s !== screen;
+        for (const a of document.querySelectorAll("nav a")) {
+          if (a.getAttribute("href") === "#/" + screen.id) a.setAttribute("aria-current", "page");
+          else a.removeAttribute("aria-current");
+        }
+        const heading = screen.querySelector("h1, h2");
+        if (heading && screens.length > 1) document.title = heading.textContent.trim() + " · " + title;
+        if (hit && target !== screen) target.scrollIntoView();
+        else if (moved) scrollTo(0, 0);
+        if (moved && heading) {
+          heading.tabIndex = -1;
+          heading.focus({ preventScroll: true });
+        }
+      }
+      addEventListener("hashchange", show);
+      show();
+
+      // Comments. A reviewer opens a comment on a part that is not drawn: show the screen of that part.
+      document.addEventListener("ac:goto", (event) => {
+        const { part, screen } = event.detail ?? {};
+        const named = part && document.querySelector('[data-ac-part="' + CSS.escape(part) + '"]');
+        const id = screen ?? named?.closest("[data-screen]")?.id;
+        if (id) location.hash = "#/" + id;
+      });
+
+      // Deck. With <body data-deck>, the arrow keys show the next or the previous screen.
+      addEventListener("keydown", (event) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+        if (!step || !document.body.hasAttribute("data-deck")) return;
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.target.closest("input, select, textarea, [contenteditable]")) return;
+        const next = screens[screens.indexOf(current) + step];
+        if (next) location.hash = "#/" + next.id;
+      });
+    </script>
+  </body>
+</html>

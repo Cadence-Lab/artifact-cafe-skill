@@ -1,0 +1,38 @@
+artifact.cafe skill license
+
+Copyright (c) 2026 Cadence Lab, Inc. All rights reserved.
+
+"Skill" means the files in this folder: the instructions, the references, the
+scripts, and the assets. Cadence Lab, Inc. owns the Skill.
+
+1. Permitted use. You, and the AI agents that work for you, may install the
+   Skill, copy it to your own computers and repositories, and run it. You may
+   change your own copy for your own use. This permission is only for use of
+   the artifact.cafe service under its Terms of Service
+   (https://artifact.cafe/terms). Each copy must keep this file.
+
+2. Your output. The files that you or your agents make with the Skill are
+   yours. This includes an artifact that starts from `assets/template.html`
+   and contains parts of that file. This license puts no limit on them.
+
+3. Limits. Without written permission from Cadence Lab, Inc., you may not:
+   - give, publish, sublicense, or sell the Skill or a part of it to a third
+     party, except as section 2 permits;
+   - publish a changed version of the Skill;
+   - use the Skill to build or operate a service that competes with
+     artifact.cafe.
+
+4. No other rights. This license gives no right to the names, logos, or
+   trademarks of Cadence Lab, Inc. or artifact.cafe. Cadence Lab, Inc. keeps
+   all rights that this license does not give.
+
+5. End. This permission ends when you do not obey this license. Then you must
+   delete each copy of the Skill.
+
+6. No warranty. THE SKILL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING THE WARRANTIES OF MERCHANTABILITY, FITNESS
+   FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. TO THE EXTENT THE LAW
+   PERMITS, CADENCE LAB, INC. IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+   LIABILITY THAT COMES FROM THE SKILL OR ITS USE.
+
+Questions and permission requests: hi@cadencelab.org

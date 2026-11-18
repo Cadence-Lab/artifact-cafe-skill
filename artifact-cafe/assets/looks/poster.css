@@ -1,0 +1,31 @@
+/* Look: poster. Archivo only, with condensed headings and text at normal width. Fields of color, with no boxes and no radius.
+   Fits: landing pages, decks, event and exhibition pages, announcements, one big message.
+   Not for: long reports, dense tables, forms with many fields.
+   Accent: for links and buttons. Light: L 0.30 to 0.46, C 0.16 or less. The deep field color is also a correct accent. Dark: L 0.78 to 0.88, C 0.12 or less.
+   Field: for large blocks of color, with bg-field text-on-field. Take it from the subject. It keeps its color in dark mode. A deep field has L 0.25 to 0.45, with --on-field oklch(0.97 0.01 90). A bright field has L 0.80 to 0.92, with --on-field oklch(0.2 0.02 80).
+   Font link: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..500&display=swap" /> */
+:root {
+  --font: "Archivo", system-ui, sans-serif;
+  --font-heading: var(--font);
+  --heading-variation: "wdth" 68;
+  --tracking: -0.01em;
+  --size-display: clamp(3.5rem, 0.5rem + 11vw, 9.5rem);
+  --size-h1: clamp(2.5rem, 1rem + 5.5vw, 5rem);
+  --size-h2: clamp(1.75rem, 1.1rem + 2.4vw, 2.75rem);
+  --size-h3: 1.375rem;
+  --size-lead: clamp(1.25rem, 1rem + 1vw, 1.625rem);
+  --radius: 0;
+  --card: var(--surface);
+  --card-border: 0;
+  --card-pad: 1.5rem;
+  --header-rule: 2px solid var(--text);
+  --bg: light-dark(oklch(0.985 0.003 90), oklch(0.16 0.006 90));
+  --surface: light-dark(oklch(0.94 0.006 90), oklch(0.22 0.008 90));
+  --line: light-dark(oklch(0.85 0.006 90), oklch(0.36 0.008 90));
+  --edge: light-dark(oklch(0.6 0.008 90), oklch(0.58 0.008 90));
+  --text: light-dark(oklch(0.17 0.01 90), oklch(0.96 0.004 90));
+  --muted: light-dark(oklch(0.45 0.01 90), oklch(0.76 0.008 90));
+  --accent: light-dark(oklch(0.36 0.13 255), oklch(0.8 0.09 255));
+  --field: oklch(0.36 0.13 255);
+  --on-field: oklch(0.97 0.01 90);
+}

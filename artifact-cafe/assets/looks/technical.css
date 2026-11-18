@@ -1,0 +1,28 @@
+/* Look: technical. Text and big numbers use IBM Plex Sans. Numbers use tabular figures. Code uses IBM Plex Mono. White panels on a cool gray ground, in a dense layout.
+   Fits: dashboards, tools, calculators, specs, status pages, data and API docs.
+   Not for: invitations, essays, personal pages, pages that sell to consumers.
+   Accent: use the one signal color of the subject, for the series or the number that matters. Light: L 0.42 to 0.46, C 0.10 to 0.16. Dark: L 0.76 to 0.86, C 0.12 or less.
+   Font link: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400..500;1,400..500&family=IBM+Plex+Mono:wght@400;500&display=swap" /> */
+:root {
+  --font: "IBM Plex Sans", system-ui, sans-serif;
+  --font-heading: var(--font);
+  --font-ui: var(--font);
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --tracking: -0.015em;
+  --size-display: clamp(2.5rem, 1.6rem + 3.6vw, 3.75rem);
+  --size-h1: clamp(1.75rem, 1.45rem + 1.2vw, 2.25rem);
+  --size-h2: 1.25rem;
+  --size-h3: 1.0625rem;
+  --leading: 1.5;
+  --radius: 0.375rem;
+  --width: 76rem;
+  --card-shadow: 0 1px 2px light-dark(oklch(0.3 0.03 255 / 0.07), transparent);
+  --bg: light-dark(oklch(0.97 0.004 255), oklch(0.165 0.008 255));
+  --surface: light-dark(oklch(0.945 0.006 255), oklch(0.2 0.009 255));
+  --card: light-dark(oklch(0.998 0.001 255), oklch(0.205 0.009 255));
+  --line: light-dark(oklch(0.9 0.007 255), oklch(0.3 0.01 255));
+  --edge: light-dark(oklch(0.6 0.012 255), oklch(0.57 0.012 255));
+  --text: light-dark(oklch(0.2 0.015 255), oklch(0.94 0.006 255));
+  --muted: light-dark(oklch(0.47 0.016 255), oklch(0.75 0.012 255));
+  --accent: light-dark(oklch(0.46 0.15 250), oklch(0.8 0.11 250));
+}

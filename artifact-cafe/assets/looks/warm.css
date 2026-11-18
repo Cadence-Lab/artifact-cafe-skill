@@ -1,0 +1,29 @@
+/* Look: warm. Headings use Fraunces with its soft axis. Text uses Figtree. Cream paper, round corners and soft panels.
+   Fits: invitations, personal and family pages, small shops, menus, order forms, community notices.
+   Not for: dashboards, technical docs, financial or board reports.
+   Accent: take the hue from the subject, such as the flowers, the venue or the product. Light: L 0.40 to 0.46, C 0.08 to 0.14. Dark: L 0.78 to 0.86, C 0.11 or less.
+   Font link: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..500,0..100,0..1&family=Figtree:wght@400..500&display=swap" /> */
+:root {
+  --font: "Figtree", system-ui, sans-serif;
+  --font-heading: "Fraunces", Georgia, serif;
+  --heading-weight: 400;
+  --heading-variation: "SOFT" 100, "WONK" 0;
+  --tracking: -0.015em;
+  --size-text: 1.0625rem;
+  --size-display: clamp(3rem, 1.5rem + 6vw, 5.75rem);
+  --size-h1: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --size-h2: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --size-h3: 1.3125rem;
+  --radius: 1rem;
+  --card-pad: 1.5rem;
+  --card-border: 0;
+  --card-shadow: 0 0 0 1px light-dark(oklch(0.45 0.06 55 / 0.08), oklch(1 0 0 / 0.07)), 0 2px 6px -2px light-dark(oklch(0.4 0.06 50 / 0.12), transparent);
+  --bg: light-dark(oklch(0.968 0.018 85), oklch(0.205 0.014 55));
+  --surface: light-dark(oklch(0.938 0.026 80), oklch(0.25 0.018 55));
+  --card: light-dark(oklch(0.988 0.01 85), oklch(0.245 0.017 55));
+  --line: light-dark(oklch(0.88 0.03 78), oklch(0.34 0.02 55));
+  --edge: light-dark(oklch(0.6 0.035 65), oklch(0.6 0.03 60));
+  --text: light-dark(oklch(0.25 0.03 45), oklch(0.94 0.014 80));
+  --muted: light-dark(oklch(0.47 0.035 50), oklch(0.78 0.02 70));
+  --accent: light-dark(oklch(0.45 0.13 25), oklch(0.8 0.09 25));
+}
