@@ -33,7 +33,7 @@ To update, run the script again.
 **With the skills CLI:**
 
 ```bash
-npx skills add artifact-cafe/skill --skill artifact-cafe -g
+npx skills add Cadence-Lab/artifact-cafe-skill --skill artifact-cafe -g
 ```
 
 The CLI does not update a copy from another installer or a project copy. It
