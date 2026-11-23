@@ -14,7 +14,8 @@ description: >
   comments.
 license: Proprietary. LICENSE.txt has complete terms
 compatibility: >
-  Needs Node.js 20 or later with npx. Without Node, the bundled scripts need
+  With no shell, use the artifact.cafe MCP server. The CLI needs Node.js 20
+  or later with npx. Without Node, the bundled scripts need
   bash, curl, jq, and shasum or sha256sum. Needs network access to
   artifact.cafe, *.artifactcafe.dev, registry.npmjs.org for npx, and the
   storage host that an upload error names.
@@ -22,9 +23,16 @@ compatibility: >
 
 # artifact.cafe
 
-**Skill version: 0.16.0**
+**Skill version: 0.16.1**
 
 Paths here are relative to the folder of this `SKILL.md`. Without that folder, `guide <name>` prints `references/<name>.md`. Without Node too, ask the user to run `curl -fsSL https://artifact.cafe/install.sh | bash`.
+
+## Use MCP without a shell
+
+If you have no shell, use the MCP server at `https://artifact.cafe/mcp`.
+If the server is not connected, direct the user to the [setup guide](https://artifact.cafe/docs/mcp).
+Each tool call needs an account. For a new artifact, call `get_guide` before `publish_artifact`.
+Read the check result before you share the review URL.
 
 ## Rules for every command
 
@@ -131,12 +139,12 @@ Done when: `publish` exits 0, and you have `url`, `visibility`, and `versionNumb
 
 | When | Put this in your message to the user |
 |---|---|
-| Always | The `url` from this run. Never the path of `.artifactcafe/config.json`. |
+| Always | The `url` from this run, but not when the result has a `claimUrl`. Never the path of `.artifactcafe/config.json`. |
 | `visibility` is `public` or `unlisted`, with no password | Anyone with the link can open it and comment, with no account. |
 | `visibility` is `workspace` | In a team, only members of the workspace can open it. In Personal, only the user can open it. Others must sign in. Offer `share <email>`. |
 | `visibility` is `private` | Only the publisher, the workspace admins, and invited people can open it. Offer `share <email>`. |
 | `protected` is in the result | Reviewers need the password. The user sends it to them. Never print it. |
-| `claimUrl` is in the result | The claim URL. If the user runs `login` before a first publish, the new artifact has no 24-hour limit. |
+| `claimUrl` is in the result | Only the `claimUrl`, labeled "For you". Do not send the `url`. The page offers the claim, and its Share key copies the link for reviewers. If the user runs `login` before a first publish, the new artifact has no 24-hour limit. |
 | `expiresAt` is not null | The date and time of `expiresAt` from the result, with its timezone. You can add the same moment in the timezone of the user. Never estimate the deadline. If it is before the date by which the user wants the reviews, say that first. At that time the server deletes all versions, comments, files, and data, with no restore. |
 | `claimUrl` and `autoDeleteAt` are both set | Claiming keeps the temporary deadline. |
 | `versionNumber` is more than 1 | "Now v{N}." Earlier comments stay on their versions. |

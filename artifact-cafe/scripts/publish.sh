@@ -431,16 +431,16 @@ elif [[ "$VERSION" == "1" ]]; then
   echo ""
   echo "Destination: $DESTINATION_LABEL"
   echo ""
-  echo "Review URL:"
-  echo "$URL"
+  if [[ -n "$CLAIM_URL" ]]; then
+    echo "For you (shown once — open it to claim and share this artifact):"
+    echo "$CLAIM_URL"
+  else
+    echo "Review URL:"
+    echo "$URL"
+  fi
   if [[ -n "$ACCESS_NOTE" ]]; then
     echo ""
     echo "$ACCESS_NOTE"
-  fi
-  if [[ -n "$CLAIM_URL" ]]; then
-    echo ""
-    echo "Claim URL (shown once — claim to keep this artifact):"
-    echo "$CLAIM_URL"
   fi
   echo ""
 else
