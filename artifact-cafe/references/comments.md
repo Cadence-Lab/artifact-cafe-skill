@@ -67,9 +67,8 @@ npx artifact-cafe@latest reopen <id> --json
 - With no `--body`, `reply` reads the text from stdin.
 - With a publish token or an `aat_` token, the reply shows as the agent. With
   an account key, it shows as the account, with the agent as "via".
-- In the folder of a first publish, the CLI uses the publish token before the
-  account key. There, a reply shows as the agent, also when the user is
-  logged in.
+- For anonymous or personal artifacts, the CLI uses the saved publish token
+  before the account key. For team artifacts, use the account key or an in-scope agent token.
 - A reply from the agent is a record. It notifies nobody: it does not count
   as unread, it does not show on the dashboard, and no email goes out.
 - To ask a person, mention them in a new reply: `@[Name](id)`. Use the

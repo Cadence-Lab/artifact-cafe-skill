@@ -96,6 +96,7 @@ is. Never print it or save it.
 | Publishes with no account key and no `aat_` token, for each IP address | 15 an hour, and 20 a day |
 | Storage of a Personal workspace | 10 GB |
 | `--title`, `--description`, `--notes` | 200, 300, and 4000 characters |
+| `--icon <name>` | Gray Phosphor icon on the first publish. The default is `file-text`. |
 
 - `429 rate_limited` has `retryAfter` in seconds. If it is more than 60, tell
   the user the time and stop. Do not retry in a loop.

@@ -44,7 +44,8 @@ With an account key, a new artifact goes to Personal. If the server refuses
 an account key and a publish token is in item 3 or 4, `publish.sh` tries that
 token one time.
 
-If the server refuses the credential with a `401` or a `403`, `publish.sh`
+`comments.sh` can retry with an account key after the server rejects a team publish token.
+If the server refuses the final credential with a `401` or a `403`, `publish.sh`
 and `comments.sh` stop with `<origin> refused the credential from <source>`. The source names the
 variable or the stored login, never the value. Tell the user the message and
 its fix: run `npx artifact-cafe@latest login` on a machine with Node, or set

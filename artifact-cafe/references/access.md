@@ -23,8 +23,8 @@ review mode stops comments.
 | `private` | The workspace owners and admins, the publisher, and people with a grant. |
 
 To see the visibility and the grants of a published artifact, run
-`share --list --json`. It works with the publish token, and with the login of
-the publisher or of an owner or admin of the workspace. If it fails with
+`share --list --json`. For a team artifact, use the login of the publisher, an
+owner, or an admin. A publish token works only on anonymous or personal artifacts. If it fails with
 `forbidden`, do the item for your credential:
 
 - An `aat_` token: get the artifact from the API. `<id>` is the

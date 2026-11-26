@@ -28,6 +28,7 @@ npx artifact-cafe@latest folders create "Design specs" --workspace <handle> --vi
 ```
 
 - `--visibility` is `workspace`, the default, or `public`.
+- Use `--icon <name>` to choose a gray Phosphor icon for the folder. The default is `folder`.
 - Use a folder that exists before you make a new one. `folders create`
   refuses a name that is already in the workspace, with a different case
   too. Then use that folder.
@@ -36,8 +37,8 @@ npx artifact-cafe@latest folders create "Design specs" --workspace <handle> --vi
   one artifact.
 - Give a folder a short name, as "Design specs" or "Q3 planning". Use the
   name style of the folders that exist.
-- In a team workspace, only an owner or an admin can make a folder. Tell the
-  user about each folder that you make.
+- Any member can make a workspace-only folder. Only owners and admins can
+  make a public folder. Tell the user about each folder that you make.
 
 ## Move an artifact
 

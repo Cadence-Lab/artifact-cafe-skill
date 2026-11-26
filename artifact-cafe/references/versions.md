@@ -25,8 +25,8 @@ The commands other than `publish` and `link` also read the id from
 `ARTIFACT_CAFE_ARTIFACT_ID`. `publish` and `link` ignore it, so always pass
 `--artifact <id>` to them.
 
-- For `publish`, a team workspace refuses a publish token alone: the user
-  must log in as a member. The comment commands accept the token.
+- For team artifacts, use the account key of a member or an in-scope agent
+  token where the command accepts it. A publish token does not grant access.
 - An anonymous artifact refuses an account key: use its publish token.
 
 ## Work on an artifact from a folder with no binding
